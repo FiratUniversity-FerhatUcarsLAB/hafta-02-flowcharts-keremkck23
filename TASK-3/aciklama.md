@@ -1,3 +1,1 @@
-
-
-sistemin kısa açıklaması (maks. 5-6 satır)
+Hastane Randevu Sistemi, hastaların internet veya çağrı merkezi aracılığıyla doktor ve poliklinik seçimi yaparak randevu almasını sağlar. Sistem, doktorların müsaitlik takvimlerini anlık olarak kontrol ederek çakışmaları önler. Hastalar, mevcut randevularını görüntüleyebilir, değiştirebilir veya iptal edebilirler. Onaylanan randevular hastanın ve doktorun kayıtlarına işlenir. Bu sistem, hastanenin kaynak yönetimini iyileştirir ve bekleme sürelerini azaltır. Randevu bilgileri genellikle SMS veya e-posta ile hastaya iletilir.
