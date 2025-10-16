@@ -1,0 +1,48 @@
+digraph HospitalAppointmentSystem {
+    // Graf ayarları
+    rankdir=LR; // Soldan sağa akış
+    node [shape=box, style="filled", fillcolor="#F5FFFA"];
+
+    // Başlangıç ve Bitiş
+    start [shape=oval, label="BAŞLA", fillcolor="#90EE90"];
+    end [shape=oval, label="BİTİR", fillcolor="#FF7F7F"];
+
+    // Ana Adımlar (Süreçler)
+    patient_auth [label="Hasta Kimlik/Giriş Doğrulama", shape=box];
+    selection [label="Poliklinik & Doktor Seçimi", shape=box];
+    view_slots [label="Müsait Slotları Görüntüle", shape=box];
+    select_time [label="Tarih ve Saat Seçimi", shape=box];
+    db_update [label="Randevu Kaydını Veritabanına Ekle", shape=box, fillcolor="#C6E2FF"];
+    notify [label="Onay Bildirimi Gönder (SMS/E-posta)", shape=box];
+
+    // Karar Noktaları (Koşullar)
+    is_patient_valid [label="Hasta Kaydı Mevcut mu?", shape=diamond, fillcolor="#FFFF99"];
+    is_slot_available [label="Seçilen Slot Müsait mi?", shape=diamond, fillcolor="#FFFF99"];
+    
+    // Hata Durumu
+    error_msg [label="Hata: Geçersiz Hasta / Slot Yok", shape=box, fillcolor="#F08080"];
+    
+    // Akış Bağlantıları
+    start -> patient_auth;
+
+    // Hasta Doğrulama Akışı
+    patient_auth -> is_patient_valid;
+    is_patient_valid -> selection [label="Evet"];
+    is_patient_valid -> error_msg [label="Hayır"];
+
+    // Randevu Seçim Akışı
+    selection -> view_slots;
+    view_slots -> select_time;
+    select_time -> is_slot_available;
+    
+    // Müsaitlik Kontrolü
+    is_slot_available -> db_update [label="Evet"];
+    is_slot_available -> view_slots [label="Hayır\n(Başka Slot Seç)"]; // Müsait değilse geri dön
+    
+    // Randevu Onayı ve Son
+    db_update -> notify;
+    notify -> end;
+    
+    // Hata durumları bitişe bağlanır
+    error_msg -> end;
+}
