@@ -1,0 +1,49 @@
+digraph ShoppingCartSystem {
+    // Graf ayarları
+    rankdir=TB; // Yukarıdan aşağıya akış
+    node [shape=box, style="filled", fillcolor="#E0FFFF"];
+
+    // Başlangıç ve Bitiş
+    start [shape=oval, label="BAŞLA\n(Kullanıcı Siteye Girer)", fillcolor="#90EE90"];
+    end [shape=oval, label="BİTİR\n(Sipariş Onayı)", fillcolor="#FF7F7F"];
+
+    // Ana Adımlar (Süreçler)
+    browse [label="Ürünlere Göz At", shape=box];
+    add_item [label="Ürünü Sepete Ekle", shape=box, fillcolor="#ADD8E6"];
+    update_cart [label="Sepet Miktarını/İçeriğini Güncelle", shape=box, fillcolor="#ADD8E6"];
+    calculate_total [label="Sepet Toplamını Hesapla", shape=box];
+    checkout_start [label="Ödeme İşlemini Başlat", shape=box];
+    process_payment [label="Ödeme İşlemi", shape=box, fillcolor="#C6E2FF"];
+    order_confirmation [label="Sipariş Kaydı Oluştur", shape=box];
+
+    // Karar Noktaları (Koşullar)
+    continue_shopping [label="Alışverişe Devam Edilsin mi?", shape=diamond, fillcolor="#FFFF99"];
+    is_cart_empty [label="Sepet Boş mu?", shape=diamond, fillcolor="#FFFF99"];
+    is_payment_successful [label="Ödeme Başarılı mı?", shape=diamond, fillcolor="#FFFF99"];
+
+    // Akış Bağlantıları
+    start -> browse;
+    browse -> add_item;
+    add_item -> calculate_total;
+    calculate_total -> update_cart;
+
+    update_cart -> continue_shopping;
+    
+    // Alışverişe devam kararı
+    continue_shopping -> browse [label="Evet\n(Daha Fazla Ürün)"];
+    continue_shopping -> is_cart_empty [label="Hayır\n(Ödemeye Geç)"];
+
+    // Sepet boş kontrolü
+    is_cart_empty -> checkout_start [label="Hayır"];
+    is_cart_empty -> end [label="Evet\n(Çıkış Yap)"];
+
+    // Ödeme akışı
+    checkout_start -> process_payment;
+    process_payment -> is_payment_successful;
+    
+    // Ödeme sonucu
+    is_payment_successful -> order_confirmation [label="Evet"];
+    is_payment_successful -> checkout_start [label="Hayır\n(Hata, Tekrar Dene)"]; // Hata durumunda tekrar ödeme sayfasına dönme
+
+    order_confirmation -> end;
+}
