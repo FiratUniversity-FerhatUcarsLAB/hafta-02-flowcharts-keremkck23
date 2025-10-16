@@ -1,0 +1,46 @@
+digraph SmartHomeSecurity {
+    // Graf ayarları
+    rankdir=TB; // Yukarıdan aşağıya akış
+    node [shape=box, style="filled", fillcolor="#F0FFFF"];
+
+    // Başlangıç ve Bitiş
+    start [shape=oval, label="BAŞLA\n(Sistem Hazır)", fillcolor="#90EE90"];
+    end [shape=oval, label="BİTİR\n(Sistem Kapatıldı)", fillcolor="#FF7F7F"];
+
+    // Ana Adımlar (Süreçler)
+    user_action [label="Kullanıcıdan Giriş Al\n(Kur/Devre Dışı Bırak)", shape=box];
+    set_status [label="Sistem Durumunu Ayarla\n(EVDE/UZAKTA/DEVRE DIŞI)", shape=box, fillcolor="#ADD8E6"];
+    monitor_sensors [label="SENSÖR VERİLERİNİ SÜREKLİ İZLE", shape=box, fillcolor="#C6E2FF"];
+    activate_alarm [label="Alarmı ve Kamerayı Aktive Et", shape=box];
+    send_notifications [label="Kullanıcıya/Kontaklara Bildirim Gönder", shape=box];
+    call_emergency [label="Acil Servisleri Ara", shape=box, fillcolor="#FFD700"];
+    
+    // Karar Noktaları (Koşullar)
+    is_armed [label="Sistem Kurulu mu?", shape=diamond, fillcolor="#FFFF99"];
+    is_violation [label="Sensör İhlali Var mı?", shape=diamond, fillcolor="#FFFF99"];
+    is_resolved [label="İhlal Çözüldü mü?", shape=diamond, fillcolor="#FFFF99"];
+    
+    // Akış Bağlantıları
+    start -> user_action;
+    user_action -> set_status;
+    set_status -> is_armed;
+
+    // İzleme Döngüsü
+    is_armed -> monitor_sensors [label="Kurulu (EVDE/UZAKTA)"];
+    is_armed -> end [label="Devre Dışı"];
+
+    monitor_sensors -> is_violation;
+
+    // İhlal Kontrolü
+    is_violation -> activate_alarm [label="Evet\n(İhlal Tespit Edildi)"];
+    is_violation -> monitor_sensors [label="Hayır\n(İzlemeye Devam Et)"];
+
+    // Tepki Zinciri
+    activate_alarm -> send_notifications;
+    send_notifications -> call_emergency;
+    
+    // Çözüm Kontrolü
+    call_emergency -> is_resolved;
+    is_resolved -> set_status [label="Evet\n(Kullanıcı İptal Etti/Polis Geldi)"]; // Sistemi tekrar kurma/devre dışı bırakma seçeneği sunulabilir
+    is_resolved -> is_resolved [label="Hayır\n(Tepkiye Devam)"];
+}
