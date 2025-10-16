@@ -1,0 +1,65 @@
+digraph ATMCashWithdrawal {
+    // Graf ayarları
+    rankdir=TB; // Yukarıdan aşağıya akış
+    node [shape=box, style="filled", fillcolor="#EEEEEE"];
+
+    // Başlangıç ve Bitiş
+    start [shape=oval, label="BAŞLA", fillcolor="#90EE90"];
+    end [shape=oval, label="BİTİR", fillcolor="#FF7F7F"];
+
+    // Adımlar (Süreçler)
+    insert_card [label="Kart Tak", shape=box];
+    read_pin [label="PIN Oku", shape=box];
+    get_amount [label="Çekilecek Miktarı Al", shape=box];
+    dispense_cash [label="Parayı Ver", fillcolor="#ADD8E6"];
+    eject_card [label="Kartı İade Et", shape=box];
+
+    // Karar Noktaları (Koşullar)
+    is_card_valid [label="Kart Geçerli mi?", shape=diamond, fillcolor="#FFFF99"];
+    is_pin_correct [label="PIN Doğru mu?", shape=diamond, fillcolor="#FFFF99"];
+    has_sufficient_balance [label="Yeterli Bakiye Var mı?", shape=diamond, fillcolor="#FFFF99"];
+    has_atm_cash [label="ATM'de Yeterli Para Var mı?", shape=diamond, fillcolor="#FFFF99"];
+
+    // Hata Durumları
+    invalid_pin_error [label="PIN Hatalı\n(Deneme Hakkı Kontrolü)", shape=box, fillcolor="#F08080"];
+    insufficient_funds_error [label="Yetersiz Bakiye Uyarısı", shape=box, fillcolor="#F08080"];
+    atm_cash_error [label="ATM Para Yok Uyarısı", shape=box, fillcolor="#F08080"];
+    eject_invalid [label="Kartı İade Et (Geçersiz)", shape=box];
+    
+    // Banka Güncelleme Adımı
+    update_account [label="Hesabı Güncelle (Bakiyeyi Düş)", fillcolor="#C6E2FF", shape=box];
+
+    // Akış Bağlantıları
+    start -> insert_card;
+    insert_card -> is_card_valid;
+    
+    // --- Kart Kontrolü ---
+    is_card_valid -> read_pin [label="Evet"];
+    is_card_valid -> eject_invalid [label="Hayır"];
+    eject_invalid -> end;
+    
+    // --- PIN Kontrolü ---
+    read_pin -> is_pin_correct;
+    is_pin_correct -> get_amount [label="Evet"];
+    is_pin_correct -> invalid_pin_error [label="Hayır"];
+    invalid_pin_error -> read_pin [label="Tekrar Dene"];
+    invalid_pin_error -> eject_card [label="Kartı Alıkoy"]; // 3 deneme hakkı biterse
+    
+    // --- Miktar ve Bakiye Kontrolü ---
+    get_amount -> has_sufficient_balance;
+    has_sufficient_balance -> has_atm_cash [label="Evet"];
+    has_sufficient_balance -> insufficient_funds_error [label="Hayır"];
+    insufficient_funds_error -> eject_card;
+
+    // --- ATM Kasa Kontrolü ---
+    has_atm_cash -> update_account [label="Evet"];
+    has_atm_cash -> atm_cash_error [label="Hayır"];
+    atm_cash_error -> eject_card;
+
+    // --- Başarılı İşlem ---
+    update_account -> dispense_cash;
+    dispense_cash -> eject_card;
+    
+    // --- Bitirme ---
+    eject_card -> end;
+}
