@@ -1,0 +1,59 @@
+digraph UniversityCourseRegistration {
+    // Graf ayarları
+    rankdir=TB; // Yukarıdan aşağıya akış
+    node [shape=box, style="filled", fillcolor="#F5FFFA"];
+
+    // Başlangıç ve Bitiş
+    start [shape=oval, label="BAŞLA\n(Kayıt Dönemi Açık)", fillcolor="#90EE90"];
+    end [shape=oval, label="BİTİR\n(Kayıt Tamamlandı/Hata)", fillcolor="#FF7F7F"];
+
+    // Ana Adımlar (Süreçler)
+    student_login [label="Öğrenci Girişi", shape=box];
+    view_courses [label="Açılan Dersleri Görüntüle", shape=box];
+    select_course [label="Ders Seçimi Yap", shape=box, fillcolor="#ADD8E6"];
+    add_to_cart [label="Dersi Sepete Ekle", shape=box];
+    submit_to_advisor [label="Dersleri Danışmana Gönder", shape=box, fillcolor="#C6E2FF"];
+    finalize_registration [label="Kayıtları Kesinleştir\n(Veritabanı Güncelleme)", shape=box];
+
+    // Karar Noktaları (Koşullar)
+    is_logged_in [label="Giriş Başarılı mı?", shape=diamond, fillcolor="#FFFF99"];
+    is_valid [label="Kontrol Et\n(Çakışma/Kontenjan/Önkoşul)", shape=diamond, fillcolor="#FFFF99"];
+    is_selection_complete [label="Ders Seçimi Tamamlandı mı?", shape=diamond, fillcolor="#FFFF99"];
+    is_advisor_approved [label="Danışman Onayı Var mı?", shape=diamond, fillcolor="#FFFF99"];
+
+    // Hata Durumu
+    error_conflict [label="HATA: Kontenjan/Çakışma", shape=box, fillcolor="#F08080"];
+    error_login [label="HATA: Geçersiz Giriş", shape=box, fillcolor="#F08080"];
+    error_advisor [label="HATA: Danışman Onaylamadı", shape=box, fillcolor="#F08080"];
+
+    // Akış Bağlantıları
+    start -> student_login;
+    student_login -> is_logged_in;
+    
+    // Giriş Kontrolü
+    is_logged_in -> view_courses [label="Evet"];
+    is_logged_in -> error_login [label="Hayır"];
+    error_login -> end;
+
+    // Ders Seçimi Akışı
+    view_courses -> select_course;
+    select_course -> is_valid;
+
+    // Kontrol ve Sepet
+    is_valid -> add_to_cart [label="Geçerli"];
+    is_valid -> error_conflict [label="Geçersiz"];
+    error_conflict -> view_courses [label="Tekrar Seç"];
+
+    add_to_cart -> is_selection_complete;
+    is_selection_complete -> select_course [label="Hayır"]; // Daha fazla ders seç
+    is_selection_complete -> submit_to_advisor [label="Evet"]; // Seçim bitti
+
+    // Danışman Onayı
+    submit_to_advisor -> is_advisor_approved;
+    is_advisor_approved -> finalize_registration [label="Onaylandı"];
+    is_advisor_approved -> error_advisor [label="Reddedildi"];
+
+    // Sonuç
+    finalize_registration -> end;
+    error_advisor -> end;
+}
